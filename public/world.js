@@ -112,7 +112,7 @@ class World {
 
   skipDays(n) {
     this.pause = true;
-    let worker = new Worker("./world.js");
+    let worker = new Worker("world.js");
     let msg = new Message({
       particles: this.particles,
       days: n,
