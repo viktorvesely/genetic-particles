@@ -30,12 +30,12 @@ class World {
 
   simulation_constructor(particles, generation, width, height, days) {
     this.food = new Food(width, height, this.settings.foodPerDay);
-    this.particles = particles;
-    this.generation = generation;
+    this.importParticles(particles);
+    this.generation = new Generation().import(this.particles, generation);
     this.collision = new CollisionManager(this.particles, width, height);
     this.pause = false;
     this.ticks = 0;
-    for (let i = 0; i < (this.settings.ticksPerDay * days - 2); ++i) {
+    for (let i = 0; i < (this.settings.ticksPerDay * days); ++i) {
       this.tick();
     }
     return this;
@@ -110,27 +110,42 @@ class World {
       });
   }
 
+  exportParticles() {
+    return this.particles.map(particle => {
+      return particle.export();
+    })
+  }
+
+  importParticles(particles) {
+    this.particles = particles.map(particle => {
+      return new Particle().import(particle);
+    })
+    return this;
+  }
+
   skipDays(n) {
     this.pause = true;
     let worker = new Worker("world.js");
     let msg = new Message({
-      particles: this.particles,
+      particles: this.exportParticles(),
       days: n,
-      generation: this.generation,
+      generation: this.generation.export(),
       width: this.canvas.width,
       height: this.canvas.height
     }).intent_init_world();
+    this.generation.generation += n;
     worker.postMessage(msg.export());
     let ctx = this;
     worker.onmessage = (e) => {
       let received = new Message().import(e.data);
       let payload = received.payload;
       switch(received.name) {
-        case received.intent_simulation_ended():
-          ctx.generation = payload.generation;
-          ctx.particles = payload.particles;
+        case received.get_intent_simulation_ended():
+          ctx.importParticles.call(ctx, payload.particles);
+          ctx.generation.import(ctx.particles, payload.generation);
+          ctx.collision = new CollisionManager(ctx.particles, ctx.canvas.width, ctx.canvas.height);
           worker.terminate();
-          ctx.new_day();
+          ctx.pause = false;
           break;
         default:
           break;
@@ -191,9 +206,6 @@ World.prototype.settings = {
 }
 
 
-window.tickBase = 190;
-window.nPopulation = 25;
-
 function initSimulation(days, particles, generation, width, height) {
   let world = new World().simulation_constructor(
     particles,
@@ -203,13 +215,24 @@ function initSimulation(days, particles, generation, width, height) {
     days
   );
   let msg = new Message({
-    generation: world.generation,
-    particles: world.particles
+    generation: world.generation.export(),
+    particles: world.exportParticles()
   }).intent_simulation_ended();
   postMessage(msg.export());
 }
 
 function initWorker() {
+    importScripts("vector.js");
+    importScripts("collision.js");
+    importScripts("food.js");
+    importScripts("message.js");
+    importScripts("NN.js");
+    importScripts("Layer.js");
+    importScripts("Genom.js");
+    importScripts("Generation.js");
+    importScripts("particle.js");
+    importScripts("particleTypes.js");
+
     onmessage = (e => {
       let msg = new Message().import(e.data);
       let payload = msg.payload;
@@ -230,6 +253,9 @@ function initWorker() {
 }
 
 function initWorld() {
+  
+  window.tickBase = 190;
+  window.nPopulation = 25;
   window.world = new World("world", window.nPopulation, "EVOLUTION" , window.tickBase);
 
   window.addEventListener("resize", () => {
@@ -261,8 +287,11 @@ function initWorld() {
 }
 
 var self = this;
+function isWorker() {
+  return self.document == undefined;
+}
 (function() {
-  if(self.document === undefined) {
+  if(isWorker()) {
     initWorker();
   } else {
     initWorld();

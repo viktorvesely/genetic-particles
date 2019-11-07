@@ -18,4 +18,5 @@ app.get('/', function(request, response) {
 
 // listen for requests :)
 const listener = app.listen(process.env.PORT, function() {
+  console.log(`Port ${listener.address().port}`)
 });

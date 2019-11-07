@@ -6,7 +6,8 @@ const GenerationSettings =  {
 }
 
 class Generation {
-    constructor(particles) {
+    constructor(particles=null) {
+        if (!particles) return this;
         this.particles = particles;
         this.genoms = [];
         this.particles.forEach(particle => {
@@ -15,6 +16,24 @@ class Generation {
             this.genoms.push(genom);
         });
         this.generation = 0;
+    }
+
+    export() {
+        return this.genoms.map(el=> {
+            return el.flatten();
+        });
+    }
+
+    import(particles, genoms) {
+        this.particles = particles;
+        this.genoms = [];
+        this.particles.forEach((particle,i) => {
+            let genom = new Genom(particle).loadFlatten(genoms[i]);
+            particle.controller = genom.nn;
+            this.genoms.push(genom);
+        });
+        this.generation = this.generation ? this.generation : 0;
+        return this;
     }
 
     fitness(particle) {
@@ -69,10 +88,12 @@ class Generation {
         while(newPopulation.length !== this.genoms.length) {
             let _sum = 0;
             threshold = this.randInt(0, sum  * GenerationSettings.thresholdAmplitude);
+            let selected = false;
             for(let i = 0; i < this.genoms.length; ++i) {
                 let genom = this.genoms[i];
                 _sum += genom.fitness;
                 if (_sum > threshold) {
+                    selected = true;
                     if (this.roll(80)) {
                         if (parent !== null) {
                             this.cross(genom, parent);
@@ -92,6 +113,7 @@ class Generation {
                     } 
                 }
             }
+            if (!selected) break;
         }
         
     }
