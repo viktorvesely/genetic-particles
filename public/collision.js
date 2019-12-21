@@ -33,7 +33,7 @@ class CollisionManager {
     let x = colliderPredict.x;
     let y = colliderPredict.y;
     let radius = particle.type.radius;
-    if (window.wrapWorld) {
+    if (typeof window !== "undefined" ? window.wrapWorld : true) {
       if (x <= -radius) {
         particle.pos.x = this.width + radius;
       } else if (x >= this.width - radius) {

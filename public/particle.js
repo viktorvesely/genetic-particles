@@ -10,7 +10,8 @@ const ParticleSettings = {
 
 
 class Particle {
-  constructor(pos, id, behaviours) {
+  constructor(pos=null, id, behaviours) {
+    if (!pos) return this;
     this.pos = pos;
     this.speed = new Vector(0, 0);
     this.id = id;  
@@ -19,12 +20,32 @@ class Particle {
     this.energy = null;
     this.controller = null;
     this.eatenFood = null;
-    this.foodStat = null;
     this.stats = {
       eatenFood: null,
       energy: null
     }
     this.restartStats();
+  }
+  
+  export() {
+    return {
+      pos: this.pos,
+      id: this.id,
+      type: this.type 
+    }
+  }
+
+  import(particle) {
+    this.pos = new Vector(particle.pos.x, particle.pos.y);
+    this.speed = new Vector(0, 0);
+    this.id = particle.id
+    this.type = particle.type
+    this.stats = {
+      eatenFood: null,
+      energy: null
+    }
+    this.restartStats();
+    return this;
   }
 
   restartStats() {

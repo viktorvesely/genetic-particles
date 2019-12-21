@@ -111,6 +111,8 @@ class Genom {
         for(let i = 0; i < this.shapes.b2[0]; ++i) {
             this.b2.push(flatten.shift());
         }
+        this.createController();
+        return this;
     }
 
     randInt(min, max) {

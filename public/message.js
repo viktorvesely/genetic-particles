@@ -1,7 +1,7 @@
 class Message {
     constructor(payload) {
-        this.name = name;
-        this.payload = null;
+        this.name = null;
+        this.payload = payload;
     }
 
     export() {
