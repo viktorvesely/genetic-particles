@@ -43,8 +43,14 @@ class Layer {
                 return this._linear;
             case "sigmoid":
                  return this._sigmoid;
+            case "sin":
+                return this._sin;
         }
     } 
+
+    _sin(x) {
+        return Math.sin(x);
+    }
 
     _relu(x) {
         return x >= 0 ? x : 0;

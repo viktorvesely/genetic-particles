@@ -13,6 +13,7 @@ class World {
     this.tickBase = tickBase;
     this.ticks = 0;
     this.ticksToTime = 1000 / tickBase;
+    this.width = this.canvas.width;
     
     this.behaviour = new Behaviour();
     this.particles = [];
@@ -35,6 +36,7 @@ class World {
     this.collision = new CollisionManager(this.particles, width, height);
     this.pause = false;
     this.ticks = 0;
+    this.width = width;
     for (let i = 0; i < (this.settings.ticksPerDay * days); ++i) {
       this.tick();
     }
@@ -167,7 +169,7 @@ class World {
         .multiply(this.frictionCoefficient)
         .multiply(particle.type.frictionModificator);
       particle.speed.add(friction);
-      particle.behave(this.particles, this.food.value);
+      particle.behave(this.particles, this.food.value, this.width);
       particle.pos.add(particle.speed);
     });
   }

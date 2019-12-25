@@ -1,6 +1,6 @@
 const GenerationSettings =  {
-    crossoverChance: 80,
-    mutationChance: 2,
+    crossoverChance: 60,
+    mutationChance: 0.2,
     mutationAmplitude: 0.2,
     thresholdAmplitude: 0.02
 }
@@ -85,16 +85,17 @@ class Generation {
         console.log(`Best: ${this.genoms[0].fitness}`);
         console.log(this.genoms[0].particle.stats);
         let parent = null;
+        let selected = false;
         while(newPopulation.length !== this.genoms.length) {
             let _sum = 0;
             threshold = this.randInt(0, sum  * GenerationSettings.thresholdAmplitude);
-            let selected = false;
+            selected = false;
             for(let i = 0; i < this.genoms.length; ++i) {
                 let genom = this.genoms[i];
                 _sum += genom.fitness;
                 if (_sum > threshold) {
                     selected = true;
-                    if (this.roll(80)) {
+                    if (this.roll(GenerationSettings.crossoverChance)) {
                         if (parent !== null) {
                             this.cross(genom, parent);
                             this.mutate(genom);
@@ -107,9 +108,9 @@ class Generation {
                         }
                         parent = genom;
                     } else {
-                        console.log("Cloning");
                         this.mutate(genom);
                         newPopulation.push(genom);
+                        break;
                     } 
                 }
             }
@@ -119,9 +120,8 @@ class Generation {
     }
 
     roll(chance) {
-        if (chance === 0) return false;
-        let sub = Math.floor(100 / chance);
-        return this.randInt(0, 1000) % sub == 0; 
+        let rand = Math.random();
+        return rand <= chance / 100; 
     }
 
     randInt(min, max) {

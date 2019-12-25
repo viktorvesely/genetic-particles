@@ -50,7 +50,7 @@ class Genom {
         this.nn.add(
             new Layer(this.w1, this.b1, "linear")  
         ).add(
-            new Layer(this.w2, this.b2, "relu")
+            new Layer(this.w2, this.b2, "sin")
         ).add(
             new Layer([], [], "linear")
         );
@@ -121,9 +121,9 @@ class Genom {
 }
 
 Genom.prototype.shapes =  {
-    w1: [4, 16],
-    b1: [16],
-    w2: [16, 2],
+    w1: [4, 32],
+    b1: [32],
+    w2: [32, 2],
     b2: [2]
 }
 

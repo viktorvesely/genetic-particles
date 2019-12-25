@@ -16,7 +16,8 @@ class Particle {
     this.speed = new Vector(0, 0);
     this.id = id;  
     this.type  = behaviours.types[Math.floor(Math.random() * behaviours.types.length)];
-   
+    this.region = -1;
+
     this.energy = null;
     this.controller = null;
     this.eatenFood = null;
@@ -60,7 +61,7 @@ class Particle {
     this.speed.add(force);
   }
 
-  behave(particles, food) {
+  behave(particles, food, width) {
     let min = 99999;
     let minParticlePos = null;
     let minFoodPos = null;
@@ -68,7 +69,7 @@ class Particle {
 
     particles.forEach(particle => {
       if (this.id === particle.id) return;
-
+      if (this.region !== particle.region && particle.region !== -1) return;
       let delta = particle.pos.clone().subtract(this.pos);
       let deltaLength = delta.length();
       if (deltaLength < min) {
@@ -117,6 +118,7 @@ class Particle {
       this.pos.add(this.speed);
       this.energy -= ParticleSettings.loseEnergy;
     }
+    this.region = Math.floor(this.pos.x / width * 10);
     
   }
 
