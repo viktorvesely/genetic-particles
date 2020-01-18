@@ -126,6 +126,8 @@ class Particle {
     ctx.beginPath();
     ctx.arc(this.pos.x, this.pos.y, this.type.radius, 0, Math.PI * 2, false);
     ctx.fillStyle = this.type.color;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = this.type.color;
     ctx.fill();
   }
 
